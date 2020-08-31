@@ -24,6 +24,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    bounce: {
+      type: Boolean,
+      default: true,
+    },
   },
   mounted() {
     // 1.创建Bscroll对象
@@ -31,6 +35,7 @@ export default {
       probeType: this.probeType,
       pullUpLoad: this.pullUpLoad,
       click: true,
+      bounce: this.bounce,
     });
     // 2.监听滚动位置
     this.scroll.on("scroll", (position) => {
@@ -55,6 +60,9 @@ export default {
     refresh() {
       console.log("--------");
       this.scroll && this.scroll.refresh();
+    },
+    getCurrentY() {
+      return this.scroll.y ? this.scroll.y : 0;
     },
   },
 };

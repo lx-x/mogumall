@@ -5,8 +5,7 @@
       :key="index"
       class="tab-control-item"
       :class="{active:index ===currentIndex}"
-      @click="tabItemClick(index)"
-    >
+      @click="tabItemClick(index)">
       <span>{{item}}</span>
     </div>
   </div>

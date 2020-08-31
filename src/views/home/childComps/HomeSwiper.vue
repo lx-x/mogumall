@@ -1,5 +1,5 @@
 <template>
-  <van-swipe :autoplay="3000">
+  <van-swipe :autoplay="3000"  indicator-color="#ff5777">
     <van-swipe-item v-for="(item,index) in banners" :key="index">
       <a :href="item.link">
         <img v-lazy="item.image" height="180px" width="100%" @load="imageload" />

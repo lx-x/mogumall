@@ -19,12 +19,13 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .nav-bar{
     display: flex;
     height: 44px;
     line-height: 44px;
     text-align: center;
+    /* border-bottom: .5px solid rgb(229, 226, 226); */
 }
 .right,.left{
     width: 60px;

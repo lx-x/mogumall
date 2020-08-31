@@ -1,16 +1,15 @@
 <template>
   <div id="home">
-    
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
-      <tab-control
-        class="tab-control"
-        :titles="['流行','新款','精选']"
-        @tabClick="tabClick"
-        v-show="isTabFixed"
-        ref="tabControl1"
-      ></tab-control>
+    <tab-control
+      class="tab-control"
+      :titles="['流行','新款','精选']"
+      @tabClick="tabClick"
+      v-show="isTabFixed"
+      ref="tabControl1"
+    ></tab-control>
     <scroll
       class="content"
       ref="scroll"
@@ -42,10 +41,10 @@ import FeatureView from "../home/childComps/FeatureView";
 import TabControl from "../../components/content/tabcontrol/TabControl";
 import GoodsList from "../../components/content/goods/GoodsList";
 import Scroll from "../../components/common/scroll/Scroll";
-import BackTop from "../../components/common/backTop/BackTop";
 import { getHomeMultidata } from "../../network/home";
 import { getHomeGoods } from "../../network/home";
-
+import { debounce } from "../../common/utils";
+import {backTopMinxin} from "../../common/mixin"
 export default {
   name: "Home",
   components: {
@@ -56,8 +55,8 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
-    BackTop,
   },
+  mixins:[backTopMinxin],
   computed: {
     showGoods() {
       return this.goods[this.currentType].list;
@@ -76,9 +75,10 @@ export default {
       currentType: "pop",
       probeType: 3,
       pullUpLoad: true,
-      isShowBackTop: false,
       taboffsetTop: 0,
       isTabFixed: false,
+      saveY: 0,
+      itemImgListener: null,
     };
   },
   methods: {
@@ -115,38 +115,26 @@ export default {
     },
     contentScroll(position) {
       // 1.判斷是否显示backtop
-      this.isShowBackTop = (-position.y) > 1000
+      this.isShowBackTop = -position.y > 1000;
       // 2.判断tabcontrol是否吸顶
-      this.isTabFixed = (-position.y) > this.taboffsetTop
+      this.isTabFixed = -position.y > this.taboffsetTop;
     },
     loadMore() {
       console.log("加载更多");
       this.getHomeGoods(this.currentType);
     },
-    backTopClick() {
-      console.log("回到顶部");
-      this.$refs.scroll.scrollTo(0, 0);
-    },
-    debounce(func, delay) {
-      let timer = null;
-      return function (...args) {
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(() => {
-          func.apply(this, args);
-        }, delay);
-      };
-    },
+
     swiperImageLoad() {
       this.taboffsetTop = this.$refs.tabControl2.$el.offsetTop;
     },
   },
   mounted() {
     // 3.监听item中图片加载完成
-    const refresh = this.debounce(this.$refs.scroll.refresh, 200);
-
-    this.$bus.$on("itemImageLoad", () => {
+    const refresh = debounce(this.$refs.scroll.refresh, 200);
+    this.itemImgListener = () => {
       refresh();
-    });
+    };
+    this.$bus.$on("itemImageLoad", this.itemImgListener);
   },
   created() {
     // 1.请求多个数据
@@ -155,6 +143,17 @@ export default {
     this.getHomeGoods("pop");
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
+  },
+  deactivated() {
+    // 保存Y值
+    this.saveY = this.$refs.scroll.getCurrentY();
+
+    // 取消全局事件的监听
+    this.$bus.$off("itemImgLoad", this.itemImgListener);
+  },
+  activated() {
+    this.$refs.scroll.scrollTo(0, this.saveY, 0);
+    this.$refs.scroll.refresh();
   },
 };
 </script>
@@ -182,11 +181,10 @@ export default {
 }
 .content {
   overflow: hidden;
-
   position: absolute;
   top: 44px;
   bottom: 49px;
   left: 0;
-  right: 0;}
-
+  right: 0;
+}
 </style>

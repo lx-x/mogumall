@@ -1,150 +1,77 @@
 <template>
- <div class="wrapper">
-   <button @click="btnclick1">按钮1</button>
-   <ul class="content">
-     <button @click='btnclick'>按钮</button>
-     <li>分类列表1</li>
-     <li>分类列表2</li>
-     <li>分类列表3</li>
-     <li>分类列表4</li>
-     <li>分类列表5</li>
-     <li>分类列表6</li>
-     <li>分类列表7</li>
-     <li>分类列表8</li>
-     <li>分类列表9</li>
-     <li>分类列表10</li>
-     <li>分类列表11</li>
-     <li>分类列表12</li>
-     <li>分类列表13</li>
-     <li>分类列表14</li>
-     <li>分类列表15</li>
-     <li>分类列表16</li>
-     <li>分类列表17</li>
-     <li>分类列表18</li>
-     <li>分类列表19</li>
-     <li>分类列表20</li>
-     <li>分类列表21</li>
-     <li>分类列表22</li>
-     <li>分类列表23</li>
-     <li>分类列表24</li>
-     <li>分类列表25</li>
-     <li>分类列表26</li>
-     <li>分类列表27</li>
-     <li>分类列表28</li>
-     <li>分类列表29</li>
-     <li>分类列表30</li>
-     <li>分类列表31</li>
-     <li>分类列表32</li>
-     <li>分类列表33</li>
-     <li>分类列表34</li>
-     <li>分类列表35</li>
-     <li>分类列表36</li>
-     <li>分类列表37</li>
-     <li>分类列表38</li>
-     <li>分类列表39</li>
-     <li>分类列表40</li>
-     <li>分类列表41</li>
-     <li>分类列表42</li>
-     <li>分类列表43</li>
-     <li>分类列表44</li>
-     <li>分类列表45</li>
-     <li>分类列表46</li>
-     <li>分类列表47</li>
-     <li>分类列表48</li>
-     <li>分类列表49</li>
-     <li>分类列表50</li>
-     <li>分类列表51</li>
-     <li>分类列表52</li>
-     <li>分类列表53</li>
-     <li>分类列表54</li>
-     <li>分类列表55</li>
-     <li>分类列表56</li>
-     <li>分类列表57</li>
-     <li>分类列表58</li>
-     <li>分类列表59</li>
-     <li>分类列表60</li>
-     <li>分类列表61</li>
-     <li>分类列表62</li>
-     <li>分类列表63</li>
-     <li>分类列表64</li>
-     <li>分类列表65</li>
-     <li>分类列表66</li>
-     <li>分类列表67</li>
-     <li>分类列表68</li>
-     <li>分类列表69</li>
-     <li>分类列表70</li>
-     <li>分类列表71</li>
-     <li>分类列表72</li>
-     <li>分类列表73</li>
-     <li>分类列表74</li>
-     <li>分类列表75</li>
-     <li>分类列表76</li>
-     <li>分类列表77</li>
-     <li>分类列表78</li>
-     <li>分类列表79</li>
-     <li>分类列表80</li>
-     <li>分类列表81</li>
-     <li>分类列表82</li>
-     <li>分类列表83</li>
-     <li>分类列表84</li>
-     <li>分类列表85</li>
-     <li>分类列表86</li>
-     <li>分类列表87</li>
-     <li>分类列表88</li>
-     <li>分类列表89</li>
-     <li>分类列表90</li>
-     <li>分类列表91</li>
-     <li>分类列表92</li>
-     <li>分类列表93</li>
-     <li>分类列表94</li>
-     <li>分类列表95</li>
-     <li>分类列表96</li>
-     <li>分类列表97</li>
-     <li>分类列表98</li>
-     <li>分类列表99</li>
-     <li>分类列表100</li>
-   </ul>
- </div>
+  <div class="category">
+    <nav-bar>
+      <div slot="center">分类</div>
+    </nav-bar>
+    <div class="container">
+      <category-left-tab @tabClick="tabClick" :tabList="tabList"></category-left-tab>
+      <category-right-content class="right" :catagoryDetail="catagoryDetail"></category-right-content>
+    </div>
+  </div>
 </template>
 
 <script>
+import NavBar from "../../components/common/navbar/NavBar";
 
-import Bscoll from 'better-scroll'
+
+import CategoryLeftTab from "./childComps/CategoryLeftTab";
+import CategoryRightContent from "./childComps/CategoryRightContent";
+import { getCategory, getSubcategory } from "../../network/category";
 export default {
-    name:'Category',
-    data(){
-      return{
-        scroll:null
-      }
-    },
-    mounted(){
-      this.scroll = new Bscoll(document.querySelector('.wrapper'),{
-        probeType:3,
-        pullUpLoad:true,
-        // click:true
+  name: "Category",
+  components: {
+    NavBar,
+    CategoryLeftTab,
+    CategoryRightContent,
+
+  },
+  data() {
+    return {
+      tabList: [],
+      catagoryDetail: [],
+      maitKey: 0,
+ 
+    };
+  },
+  methods: {
+    getCategory() {
+      getCategory().then((res) => {
+        console.log(res);
+        this.tabList = res.data.category.list;
+        this.maitKey = this.tabList[0].maitKey;
+        this.getSubcategory(this.tabList[0].maitKey);
       });
-      this.scroll.on('scroll',(position=>{
-        // console.log(position,"___________")
-      }));
-      this.scroll.on('pullingUp',()=>{
-        console.log('上拉加载更多'+"----")
-      })
     },
-    methods:{
-      btnclick1(){
-        console.log("按钮1被点击")
-      },
-      btnclick(){
-        console.log("按钮被点击")
-      }
-    }
-}
+    getSubcategory(mKey) {
+      getSubcategory(mKey).then((res) => {
+        console.log(res);
+        this.catagoryDetail = res.data.list;
+      });
+    },
+    tabClick(index) {
+      this.maitKey = this.tabList[index].maitKey;
+      this.getSubcategory(this.maitKey);
+    },
+  },
+  created() {
+    // 获取左侧分类数据
+    this.getCategory();
+  },
+  mounted() {},
+};
 </script>
 
 <style scoped>
-.wrapper{
-  background-color: red;
-  height: 300px;
-  overflow-y: scroll;
+.container {
+  display: flex; 
+  justify-content: space-between;
+}
+.nav-bar {
+  background-color: var(--color-tint);
+  color: white;
+  font-weight: 700;
+}
+.right{
+  flex: 1;
 }
 </style>
